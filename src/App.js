@@ -83,10 +83,7 @@ function App() {
 
   // readCount();
   // getBalance('0x933E36c8564Cb779e1e858c433D98AfA2EDEA2cc');
-  const onPressTestButton2 = (_balance, _setBalance) => { // 변수 뿐 아니라 함수도 넘길 수 있다
-    _setBalance(_balance);
-    //setBalance('10')
-  }
+
 
   const [nfts, setNfts] = useState([]);
   const [myBalance, setMyBalance] = useState('0');
