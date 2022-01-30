@@ -5,6 +5,7 @@ import QRCode from "qrcode.react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome, faWallet, faPlus } from "@fortawesome/free-solid-svg-icons";
 import * as KlipApi from './api/UseKlip';
+import * as KASApi from './api/UseKAS'
 import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
 import './market.css';
@@ -108,6 +109,7 @@ function App() {
   const [qrvalue, setQrvalue] = useState(DEFAULT_OR_CODE);
   const [tab, setTab] = useState('MARKET'); //MINT, WALLET
   const [mintImageUrl, setMintImageUrl] = useState("");
+  const [mintTokenId, setMintTokenId] = useState(""); //
 
  //Modal
  const [showModal, setShowModal] = useState(false);
@@ -165,11 +167,19 @@ function App() {
 
   }
 
-  const onClickMint = async (uri) => {
+  const onClickMint = async (uri, _mintTokenId) => {
     if (myAddress === DEFAULT_ADDRESS){ alert("NO Address") ;
     return;}
+
+    //입력받은 uri , token 으로 metadata 업로드 (option asset upload) -> uri . nft 로 
+    const metadataURL =  await KASApi.uploadMetaData(uri);
+    if (!metadataURL){
+      alert("metadata업로드에 실패하였습니다");
+      return;
+    }
+
     const randomTokenId = parseInt(Math.random() * 100000000000);
-    KlipApi.mintCardWithURI(myAddress, randomTokenId, uri, setQrvalue, (result) => {
+    KlipApi.mintCardWithURI(myAddress, _mintTokenId, metadataURL, setQrvalue, (result) => {
       alert(JSON.stringify(result));
     })
 
@@ -320,17 +330,28 @@ function App() {
               {mintImageUrl !== "" ? (<Card.Img src={mintImageUrl} height={"50%"} />) : null}
               <Form>
                 <Form.Group>
-                  <Form.Control value={mintImageUrl} onChange={(e) => {
+
+                  <Form.Control value={mintImageUrl}
+                    onChange={(e) => {
                     console.log(e.target.value);
                     setMintImageUrl(e.target.value);
                   }}
                   type="text"
                   placeholder="Image 주소를 입력하세요"/>
+                   <br />
+                 
+                   <Form.Control value={mintTokenId} // metadata
+                    onChange={(e) => {
+                    console.log(e.target.value);
+                    setMintTokenId(e.target.value);
+                  }}
+                  type="text"
+                  placeholder="토큰 ID를 입력하세요"/>
                 </Form.Group>
                 <br />
                 <Button
                 onClick={() => {
-                  onClickMint(mintImageUrl);
+                  onClickMint(mintImageUrl,mintTokenId);
                 }}
                 variant="primary" style={{ backgroundColor:"#810034", borderColor: "#810034" }}>
                   발행하기

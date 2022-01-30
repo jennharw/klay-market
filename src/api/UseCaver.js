@@ -1,6 +1,7 @@
 import Caver from 'caver-js';
 import CounterABI from '../abi/CounterABI.json';
 import KIP17ABI from '../abi/KIP17TokenABI.json';
+import axios from "axios";
 
 import  { ACCESS_KEY_ID, SECRET_KEY, COUNT_CONTRACT_ADDRESS, NFT_CONTRACT_ADDRESS, MARKET_CONTRACT_ADDRESS ,CHAIN_ID  } from '../constants/index'
 
@@ -32,8 +33,14 @@ export const fetchCardsOf = async (address) => {
     //Fetch TokenUris
     const tokenUris = [];
     for (let i = 0 ; i <balance ; i++){
-        const uri = await NFTContract.methods.tokenURI(tokenIds[i]).call();
-        tokenUris.push(uri);
+        //const uri = await NFTContract.methods.tokenURI(tokenIds[i]).call(); //-> metadata kas 주소
+        //tokenUris.push(uri);
+        const metadataUrl = await NFTContract.methods.tokenURI(tokenIds[i]).call(); //-> metadata kas 주소
+        const response = await axios.get(metadataUrl); //실제 metadata
+    
+        const urlJSON = response.data; 
+        tokenUris.push(urlJSON.image); //img
+
     }
 
     console.log(`[tokenIds] ${tokenIds}`);
